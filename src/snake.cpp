@@ -4,13 +4,14 @@
 #include <ctime>
 #include <unistd.h>
 #include <iostream>
+#include <cctype>
 using std::cerr;
 using std::endl;
 #ifdef DEBUG
-#define DEBUG(); cerr << __func__ << ": head = {" << head.x << ", " << head.y << "}, finish = " << finish << ", dir = " << dir << ", fruit = {" << fruit.x << ", " << fruit.y << "}, tail_len = " << tail_len << ", MAX = " << MAX << ", tail:" << endl; \
+#define DEBUG() cerr << __func__ << ": head = {" << head.x << ", " << head.y << "}, finish = " << finish << ", dir = " << dir << ", fruit = {" << fruit.x << ", " << fruit.y << "}, tail_len = " << tail_len << ", MAX[level] = " << MAX[level] << ", tail:" << endl; \
         for (int j = 0; j < tail_len; j++) \
             cerr << "{" << tail[j].x << ", " << tail[j].y << "} "; \
-            cerr << endl;
+            cerr << endl
 #else
 #define DEBUG()
 #endif
@@ -20,8 +21,9 @@ namespace snake
     Snake::Snake ()
     {
         std::ifstream infile;
-        infile.open("snake.txt");
-        infile >> MAX;
+        infile.open("txts/snake.txt");
+        for (int i = 0; i < 10; i++)
+            infile >> MAX[i];
         infile.close();
         tail_len = 1;
         srand (time(NULL));
@@ -32,7 +34,8 @@ namespace snake
         tail->x = head.x - 1;
         tail->y = head.y;
         finish = 0;
-        speed = 400000;
+        speed = 320000;
+        level = 1;
         refruit();
         DEBUG();
     }
@@ -40,13 +43,16 @@ namespace snake
     Snake::~Snake ()
     {
         delete[] tail;
-        if (tail_len > MAX)
+
+        std::ofstream outfile;
+        outfile.open("txts/snake.txt");
+        for (int i = 0; i < 10; i++)
         {
-            std::ofstream outfile;
-            outfile.open("snake.txt");
-            outfile << MAX;
-            outfile.close();
+            if ((i == level) && (MAX[level] < tail_len))
+                outfile << tail_len << ' ';
+            else outfile << MAX[level] << ' ';
         }
+        outfile.close();
     }
 
     void Snake::play()
@@ -54,10 +60,83 @@ namespace snake
         initscr();
         cbreak();
         noecho();
-        printw ("TAP ANOTHER KEY FOR START");
-        long q = speed;
+        mvprintw (1 , 1, "   =====");
+        mvprintw (2 , 1, " //     \\\\");
+        mvprintw (3 , 1, "||       ||");
+        mvprintw (4 , 1, "||");
+        mvprintw (5 , 1, " \\\\");
+        mvprintw (6 , 1, "   \\\\");
+        mvprintw (7 , 1, "     \\\\");
+        mvprintw (8 , 1, "       \\\\");
+        mvprintw (9 , 1, "         ||");
+        mvprintw (10, 1, "||       ||");
+        mvprintw (11, 1, " \\\\     //");
+        mvprintw (12, 1, "   =====");
+
+        mvprintw (1 , 14, "||       ||");
+        mvprintw (2 , 14, "||       ||");
+        mvprintw (3 , 14, "||       ||");
+        mvprintw (4 , 14, "||\\\\     ||");
+        mvprintw (5 , 14, "|| \\\\    ||");
+        mvprintw (6 , 14, "||  \\\\   ||");
+        mvprintw (7 , 14, "||   \\\\  ||");
+        mvprintw (8 , 14, "||    \\\\ ||");
+        mvprintw (9 , 14, "||     \\\\||");
+        mvprintw (10, 14, "||       ||");
+        mvprintw (11, 14, "||       ||");
+        mvprintw (12, 14, "||       ||");
+
+        mvprintw (1 , 27, "    //\\\\       ");
+        mvprintw (2 , 27, "   //  \\\\     ");
+        mvprintw (3 , 27, "  //    \\\\  ");
+        mvprintw (4 , 27, " //      \\\\");
+        mvprintw (5 , 27, "||        ||");
+        mvprintw (6 , 27, "||        ||");
+        mvprintw (7 , 27, "||        ||");
+        mvprintw (8 , 27, "||========||");
+        mvprintw (9 , 27, "||        ||");
+        mvprintw (10, 27, "||        ||");
+        mvprintw (11, 27, "||        ||");
+        mvprintw (12, 27, "||        ||");
+
+        mvprintw (1 , 41, "||     //  ");
+        mvprintw (2 , 41, "||    //   ");
+        mvprintw (3 , 41, "||   //    ");
+        mvprintw (4 , 41, "||  //");
+        mvprintw (5 , 41, "|| //");
+        mvprintw (6 , 41, "||//  ");
+        mvprintw (7 , 41, "||\\\\   ");
+        mvprintw (8 , 41, "|| \\\\   ");
+        mvprintw (9 , 41, "||  \\\\   ");
+        mvprintw (10, 41, "||   \\\\    ");
+        mvprintw (11, 41, "||    \\\\   ");
+        mvprintw (12, 41, "||     \\\\  ");
+
+        mvprintw (1 , 52, "||==========");
+        mvprintw (2 , 52, "||       ");
+        mvprintw (3 , 52, "||       ");
+        mvprintw (4 , 52, "||  ");
+        mvprintw (5 , 52, "|| ");
+        mvprintw (6 , 52, "||  ");
+        mvprintw (7 , 52, "||=======   ");
+        mvprintw (8 , 52, "||    ");
+        mvprintw (9 , 52, "||     ");
+        mvprintw (10, 52, "||       ");
+        mvprintw (11, 52, "||       ");
+        mvprintw (12, 52, "||==========");
+
+
+        mvprintw (16, 20, "TAP ANOTHER KEY FOR START");
+        mvprintw (17, 10, "IF YOU WANT PLAY WITH HIGH LEVEL TAP ON NUMBER");
         raw();
-        getch();
+        int y = getch();
+        long q = speed / level;
+        if (isnumber(y))
+        {
+            if (y == '0') q /= 10;
+            else q /= (y - '0');
+            level = y - '0';
+        }
         noraw();
         clear();
         win = newwin (MAX_Y + 1, MAX_X + 1, 2, 2);
@@ -81,6 +160,8 @@ namespace snake
     {
         timeout (1);
         char x = getch();
+        x = tolower (x);
+        if (x == 'q') finish = 1;
         if (x == 'w' || x == 'a' || x == 's' || x == 'd')
             switch (x)
             {
@@ -108,6 +189,7 @@ namespace snake
                 break;
             case 'a':
                 head.x = (head.x - 1) % MAX_X;
+                if (head.x == 0) head.x = MAX_X - 1;
                 break;
             case 's':
                 head.y = (head.y + 1) % MAX_Y;
@@ -145,6 +227,8 @@ namespace snake
             mvwprintw (win, tail[i].y, tail[i].x, "*");
         mvwprintw (win, head.y, head.x, "$");
         mvwprintw (win, fruit.y, fruit.x, "O");
+        mvprintw (MAX_Y + 4, 1, "  YOUR RESULT: %d            BEST RESULT: %d", tail_len, MAX[level]);
+        mvprintw (MAX_Y + 6, 1, "  TAP \'Q\' FOR END");
         wrefresh(win);
     }
 

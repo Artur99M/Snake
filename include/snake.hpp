@@ -14,16 +14,17 @@ namespace snake
     class Snake
     {
         private:
-        enum {MAX_X = 50, MAX_Y = 20};
+        enum {MAX_X = 100, MAX_Y = 30};
         poz* tail;
         int tail_len;
         poz head;
         poz fruit;
         WINDOW* win;
         int finish;
-        int MAX;
+        int MAX[10];
         char dir;
         long speed;
+        int level;
         public:
         Snake();
         ~Snake();
